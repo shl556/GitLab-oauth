@@ -37,9 +37,9 @@ import static org.scribe.model.OAuthConstants.CODE;
 public class GitLabApi extends DefaultApi20 {
 
     private static final String AUTHORIZE_URL =
-            "http://de.isrv.us/oauth/authorize?client_id=%s&response_type=code&redirect_uri=%s";
+            "http://172.27.12.85/oauth/authorize?client_id=%s&response_type=code&redirect_uri=%s";
     private static final String ACCESS_TOKEN_ENDPOINT =
-            "http://de.isrv.us/oauth/token";
+            "http://172.27.12.85/oauth/token";
 
     public GitLabApi() {
     }
