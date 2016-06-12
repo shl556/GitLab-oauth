@@ -1,0 +1,435 @@
+
+<project name="AntDemo-1.0.0-SNAPSHOT" default="run" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+	<!--ANT 1.7 is required -->
+	<property environment="currentenv" />
+	<!--定义项目基本属性-->
+	<property name="project.name" value="AntDemo" />
+	<property name="project.version" value="1.0.0-SNAPSHOT" />
+
+	<!-- lib,bin,build目录为根目录下三个已经存在的目录 -->
+	<property name="lib.dir" value="lib" />
+	<property name="bin.dir" value="bin" />
+	<!--构建结果的存放目录-->
+	<property name="build.dir" value="build" />
+	<!--存放源码的目录-->
+	<property name="build.src" value="${build.dir}/src" />
+	<property name="src.main" value="${build.src}/main" />
+	<property name="src.test" value="${build.src}/test" />
+	<!--存放class文件的目录-->
+	<property name="build.classes" value="${build.dir}/classes" />
+	<property name="classes.main" value="${build.classes}/main" />
+	<property name="classes.test" value="${build.classes}/test" />
+	<!--存放相关可执行文件的bin目录-->
+	<property name="build.bin" value="${build.dir}/bin" />
+	<!--存放第三方依赖的目录-->
+	<property name="build.lib" value="${build.dir}/lib" />
+	<!--用于存放构建好的源码包，javadoc包的目录-->
+	<property name="build.libs" value="${build.dir}/libs" />
+	<!--存放资源文件的目录-->
+	<property name="build.resources" value="${build.dir}/resources" />
+	<property name="resources.main" value="${build.resources}/main" />
+	<property name="resources.test" value="${build.resources}/test" />
+	<!--存放代码审查工具报告的目录-->
+	<property name="build.reports" value="${build.dir}/reports" />
+	<property name="reports.checkstyle" value="${build.reports}/checkstyle" />
+	<property name="reports.findbugs" value="${build.reports}/findbugs" />
+	<property name="reports.cobertura" value="${build.reports}/cobertura" />
+	<!--存放单元测试报告的目录-->
+	<property name="build.testResult" value="${build.dir}/testResult" />
+	<!--存放javadoc API的目录-->
+	<property name="build.docs" value="${build.dir}/docs" />
+
+	<!-- 指定日期格式 -->
+	<tstamp>
+		<format property="TODAY_ZH" pattern="yyyy-MM-dd" locale="ZH,en" />
+	</tstamp>
+
+	<path id="build.classpath">
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!--  target: resolve,检索下载依赖  -->
+	<target name="resolve" description="--> retreive dependencies with ivy">
+		<!--指定settings文件的位置，默认为根目录下的settings目录下-->
+		<ivy:settings file="ivysettings.xml" />
+		<ivy:retrieve />
+	</target>
+	<!-- target: report，生成依赖报告-->
+	<target name="report" depends="resolve" description="--> generates a report of dependencies">
+		<ivy:report todir="${build.dir}" />
+	</target>
+	<!-- target: clean-cache，清除依赖缓存 -->
+	<target name="clean-cache" description="--> clean the ivy cache">
+		<ivy:cleancache />
+	</target>
+
+	<!--清除已有构建-->
+	<target name="clean">
+		<echo message="Removing old directory structure..." />
+		<delete dir="${build.dir}">
+		</delete>
+	</target>
+
+	<!-- target: init，建立必要的文件目录 -->
+	<target name="init" depends="clean">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.src}" />
+		<mkdir dir="${src.main}" />
+		<mkdir dir="${src.test}" />
+		<mkdir dir="${build.classes}" />
+		<mkdir dir="${classes.main}" />
+		<mkdir dir="${classes.test}" />
+		<mkdir dir="${build.bin}" />
+		<mkdir dir="${build.lib}" />
+		<mkdir dir="${build.libs}" />
+		<mkdir dir="${build.resources}" />
+		<mkdir dir="${resources.main}" />
+		<mkdir dir="${resources.test}" />
+		<mkdir dir="${build.reports}" />
+		<mkdir dir="${reports.checkstyle}" />
+		<mkdir dir="${reports.findbugs}" />
+		<mkdir dir="${reports.cobertura}" />
+		<mkdir dir="${build.testResult}" />
+		<mkdir dir="${build.docs}" />
+	</target>
+	<!--复制相关的源码和资源文件-->
+	<target name="copy" depends="init">
+		<echo> copy code and  resources </echo>
+		<!--复制源码-->
+		<copy todir="${src.main}" encoding="UTF-8">
+			<fileset dir="src/main/java">
+				<include name="com/**/*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${src.test}" encoding="UTF-8">
+			<fileset dir="src/test/java">
+				<include name="com/**/*.*" />
+			</fileset>
+		</copy>
+		<!--复制资源文件-->
+		<copy todir="${resources.main}">
+			<fileset dir="src/main/resources">
+				<include name="*.*" />
+				<include name="sql/*.*" />
+				<include name="public/**/*.*" />
+				<include name="com/**/*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${resources.test}">
+			<fileset dir="src/test/resources">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+		<!-- 复制已编译的文件 -->
+		<copy todir="${build.bin}" encoding="UTF-8">
+			<fileset dir="${bin.dir}">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+		<!-- 复制第三方依赖 -->
+		<copy todir="${build.lib}">
+			<fileset dir="${lib.dir}">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+	</target>
+	<!--编译单元测试代码所需资源-->
+	<path id="testLib">
+		<pathelement path="${classes.main}" />
+		<fileset dir="${build.lib}">
+			<include name="*.*" />
+		</fileset>
+	</path>
+	<!--运行主代码所需资源-->
+	<path id="sourceRun">
+		<!--class文件位置-->
+		<pathelement path="${classes.main}" />
+		<!--资源文件位置-->
+		<pathelement path="${resources.main}" />
+		<!--依赖文件位置-->
+		<fileset dir="${build.lib}">
+			<include name="*.*" />
+		</fileset>
+	</path>
+	<!--运行单元测试所需资源-->
+	<path id="testRun">
+		<path refid="testLib" />
+		<pathelement path="${classes.test}" />
+		<pathelement path="${resources.main}" />
+		<pathelement path="${resources.test}" />
+	</path>
+	<!-- 编译 -->
+	<target name="compile" depends="copy">
+		<echo>compile java code </echo>
+		<javac source="1.8" target="1.8" srcdir="${src.main}" destdir="${classes.main}" debug="on" failonerror="true" deprecation="true" optimize="true" encoding="UTF-8" fork="true">
+			<classpath refid="build.classpath">
+			</classpath>
+		</javac>
+		<javac source="1.8" target="1.8" srcdir="${src.test}" destdir="${classes.test}" debug="on" failonerror="true" deprecation="true" optimize="true" encoding="UTF-8" fork="true">
+			<classpath refid="testLib" />
+		</javac>
+	</target>
+	<!--单元测试-->
+	<target name="test" depends="compile">
+		<echo> run junit test </echo>
+		<junit printsummary="yes" haltonfailure="yes" fork="true">
+			<!--<sysproperty key="file.encoding" value="UTF-8" /> 若指定则控制台中文乱码-->
+			<classpath>
+				<path refid="testRun">
+				</path>
+			</classpath>
+			<batchtest todir="${build.testResult}">
+				<fileset dir="${src.test}" includes="com/**/*Test.java" />
+				<formatter type="brief" usefile="false" />
+				<formatter type="xml" />
+			</batchtest>
+		</junit>
+	</target>
+	<!--运行-->
+	<target name="run" depends="compile">
+		<echo> run App.class </echo>
+		<java classname="com.minitwit.App" failonerror="true">
+			<sysproperty key="file.encoding" value="UTF-8" />
+			<classpath refid="sourceRun" />
+		</java>
+	</target>
+	<!--打jar包-->
+	<target name="jar" >
+		<echo> product jar  </echo>
+		<jar destfile="${build.libs}/${project.name}-${project.version}-jar.jar" update="true" index="true">
+			<fileset dir="${classes.main}">
+			</fileset>
+			<fileset dir="${resources.main}">
+			</fileset>
+			<manifest>
+				<attribute name="Main-Class" value=" com.minitwit.App" />
+				<attribute name="Built-By" value="${user.name}" />
+				<section name="common">
+					<attribute name="Specification-Title" value="AntDemo-jenkins" />
+					<attribute name="Specification-Version" value="${project.version}}" />
+					<attribute name="Specification-Vendor" value="H3C" />
+					<attribute name="Implementation-Title" value="AntDemo" />
+					<attribute name="Implementation-Version" value="${project.version} ${TODAY}" />
+					<attribute name="Implementation-Vendor" value="AntDemo Corp." />
+				</section>
+			</manifest>
+		</jar>
+	</target>
+	<!--拼接manifest文件中的class-path属性的属性值，即执行引用的jar包位置-->
+	<target name="appendLibPath" depends="compile">
+		<!--pathconvert用于对目录进行组合,property即最终生成的字符串的名字，pathsep作用是各个文件之间的分隔符，  
+		        如果不写，在windows平台默认是分号。但时在MANIFEST.MF这个文件中，各个jar包之间要用空格区分，  
+		        因此。这里就写成空格了  
+		    -->
+		<pathconvert property="libPath" pathsep="  ">
+			<mapper>
+				<chainedmapper>
+					<!--过滤文件，将路径去掉，只保留文件名 -->
+					<flattenmapper />
+					<!--过滤+转换器，将所有的文件名前面都加上一个lib，我们知道lib目录下面有jar包，  
+		            	                    lib/*的作用其实是将jar包名与路径进行组合形成如：lib/google.jar这样的相对路径  
+		            	                 -->
+					<globmapper from="*" to="lib/*" />
+				</chainedmapper>
+			</mapper>
+			<fileset dir="${build.lib}">
+				<include name="*.jar" />
+			</fileset>
+		</pathconvert>
+	</target>
+	<!--打可执行jar包,将依赖放在jar包外的同级lib目录中-->
+	<target name="exeJar" depends="appendLibPath">
+		<jar destfile="${build.dir}/${project.name}-${project.version}.jar" update="true">
+			<fileset dir="${classes.main}">
+			</fileset>
+			<fileset dir="${resources.main}">
+			</fileset>
+			<manifest>
+				<attribute name="Main-Class" value=" com.minitwit.App" />
+				<attribute name="Class-Path" value="${libPath}" />
+				<attribute name="Built-By" value="${user.name}" />
+			</manifest>
+		</jar>
+	</target>
+	<!--将第三方依赖jar包解压缩到class主目录-->
+	<target name="unjar" depends="compile">
+		<unzip dest="${classes.main}">
+			<patternset>
+				<exclude name="META-INF/*" />
+			</patternset>
+			<fileset dir="${build.lib}">
+				<exclude name="**/*sources.jar" />
+				<exclude name="**/*javadoc.jar" />
+			</fileset>
+		</unzip>
+	</target>
+	<!--打可执行jar包，将依赖中的jar包解压缩将其中class文件放进jar包中-->
+	<target name="exeJar2" depends="unjar">
+		<jar destfile="${build.dir}/${project.name}-${project.version}.jar" update="true">
+			<fileset dir="${classes.main}">
+			</fileset>
+			<fileset dir="${resources.main}">
+			</fileset>
+			<manifest>
+				<attribute name="Main-Class" value=" com.minitwit.App" />
+				<attribute name="Built-By" value="${user.name}" />
+			</manifest>
+		</jar>
+	</target>
+	<!--测试可执行jar包-->
+	<target name="runJar" depends="exeJar2">
+		<!--其实这里就是运行jar命令，注意fork一定加上，不然不起作用-->
+		<java jar="${build.dir}/${project.name}-${project.version}.jar" fork="true">
+		</java>
+	</target>
+	<!--生成源码包-->
+	<target name="sourceJar">
+		<jar destfile="${build.libs}/${project.name}-${project.version}-source.jar" update="true">
+			<fileset dir="${src.main}">
+			</fileset>
+			<fileset dir="${resources.main}">
+			</fileset>
+		</jar>
+	</target>
+	<path id="javadocRes">
+		<pathelement path="${src.main}" />
+		<pathelement path="${resources.main}" />
+		<path refid="build.classpath" />
+	</path>
+	<!--生成javadoc API-->
+	<target name="javadoc">
+		<javadoc sourcepathref="javadocRes" defaultexcludes="yes" destdir="${build.docs}" author="true" version="true" use="true" encoding="UTF-8" charset="UTF-8" windowtitle="AntDemo  API">
+			<doctitle>
+				<![CDATA[<h1>AntDemo API </h1>]]></doctitle>
+		<bottom>
+			<![CDATA[<i>Copyright &#169; 2000 Dummy Corp. All Rights Reserved.</i>]]></bottom>
+</javadoc>
+</target>
+<!--将生成的HTML API打成jar包-->
+<target name="javadocJar" depends="javadoc">
+<jar destfile="${build.libs}/${project.name}-${project.version}-javadoc.jar" update="true">
+	<fileset dir="${build.docs}">
+	</fileset>
+</jar>
+</target>
+<!--生成war包-->
+<target name="war" depends="compile">
+<war destfile="${build.libs}/javadoc/${project.name}-${project.version}.war" webxml="src/main/webapp/WEB-INF/web.xml">
+	<classes dir="${classes.main}" />
+	<classes dir="${resources.main}" />
+	<lib dir="${build.lib}">
+		<exclude name="**/*sources.jar" />
+		<exclude name="**/*javadoc.jar" />
+	</lib>
+</war>
+</target>
+
+<!--执行代码审查checkstyle-->
+<target name="checkstyle" >
+<!--安装checkstyle Task-->
+<taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties" classpath="${build.lib}/checkstyle-6.18-all.jar" />
+<checkstyle config="${resources.main}/sun_checks.xml" failonviolation="true" maxerrors="3000">
+	<fileset dir="${src.main}" includes="**/*.java" />
+	<formatter type="xml" toFile="${reports.checkstyle}/checkstyle_result.xml" />
+</checkstyle>
+</target>
+<!--指定代码审查findbugs-->
+<target name="findbugs" >
+<!--findbugs的安装路径-->
+<property name="findbugs.home" value="/var/lib/jenkins/tools/hudson.tasks.Ant_AntInstallation/findbugs-3.0.1" />
+<!--定义findbugs任务，注意将findbugs-ant.jar包放在ant_home的lib目录中，且执行findbugs前确保执行了compile-->
+<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" />
+<findbugs home="${findbugs.home}" output="xml" outputFile="${reports.findbugs}/findbugs-result.xml" reportLevel="low" effort="max">
+	<auxClasspath path="${build.lib}" />
+	<sourcePath path="${src.main}" />
+	<class location="${classes.main}" />
+</findbugs>
+</target>
+
+<!--cobertura的安装目录-->
+<property name="cobertura.dir" value="/var/lib/jenkins/tools/hudson.tasks.Ant_AntInstallation/cobertura-2.1.1" />
+<path id="cobertura.classpath">
+<fileset dir="${cobertura.dir}">
+	<include name="cobertura*.jar" />
+	<include name="lib/**/*.jar" />
+</fileset>
+</path>
+<!--定义cobertura Task-->
+<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
+<!--经过cobertura加工过的class文件的存放目录-->
+<property name="classes.instrument" value="${build.classes}/instrument">
+</property>
+<!--用于存放cobertura执行加工好的class文件的junit test的测试结果的目录-->
+<property name="reports.test" value="${build.reports}/test">
+</property>
+<!--加工编译好的class文件-->
+<target name="instrument" >
+<!--删除旧的数据-->
+<delete file="cobertura.ser" />
+<cobertura-instrument todir="${classes.instrument}" >
+	<ignore regex="org.apache.log4j.*" />
+	<fileset dir="${classes.main}">
+	</fileset>
+</cobertura-instrument>
+</target>
+
+<!--对加工过的class文件执行单元测试-->
+<target name="coberturaTest" depends="instrument">
+<mkdir dir="${reports.test}" />
+<junit fork="yes" dir="${basedir}" failureProperty="test.failed" printsummary="true" haltonfailure="yes">
+	<sysproperty key="net.sourceforge.cobertura.datafile" file="${basedir}/cobertura.ser" />
+   <!--声明执行单元测试所需的资源，注意经过instrument处理过的class的目录必须放在前面，否则计算的覆盖率为0-->
+	<classpath>
+   <pathelement path="${classes.instrument}"/>
+   <pathelement path="${classes.test}"/>
+    <pathelement path="${classes.main}"/>
+   <pathelement path="${resources.main}"/>
+   <pathelement path="${resources.test}"/>
+    </classpath>
+	<classpath refid="build.classpath">
+	</classpath>
+	<classpath refid="cobertura.classpath">
+	</classpath>
+	<formatter type="xml" />
+	<batchtest todir="${reports.test}">
+		<fileset dir="${src.test}">
+			<include name="com/**/*Test.java" />
+		</fileset>
+		<formatter type="xml" />
+		<formatter type="brief" usefile="false" />
+	</batchtest>
+</junit>
+<!--将xml的测试报告转换为html的测试报告 -->
+<junitreport todir="${reports.test}">
+	<fileset dir="${reports.test}">
+		<include name="TEST-*.xml" />
+	</fileset>
+	<report format="frames" todir="${reports.cobertura}/html" />
+</junitreport>
+</target>
+<!--执行代码测试覆盖率计算 -->
+<target name="cobertura" depends="coberturaTest">
+<cobertura-report format="xml" destdir="${reports.cobertura}" encoding="UTF-8">
+	<fileset dir="${src.main}">
+	</fileset>
+</cobertura-report>
+</target>
+<!--将ivy.xml文件转化成对应的pom文件-->
+<target name="makepom" >
+<!--必须确保ivy.xml在缓存中，否则upload执行报错，因为他会查找ivy.xml文件中的publication元素-->
+<ivy:retrieve pattern="${lib.dir}/[orgPath]/[artifact]/[type]/[revision].[ext]" />
+<ivy:makepom ivyfile="ivy.xml" pomfile="pom.xml" artifactname="AntDemo" artifactpackaging="jar">
+	<!--将ivy.xml中的scope与maven中的scope进行映射-->
+	<mapping conf="default" scope="compile" />
+</ivy:makepom>
+</target>
+<!--将jar包上传至maven私服-->
+<target name="upload" depends="makepom">
+<ivy:publish resolver="nexus-snapshots" overwrite="true" update="true" organisation="com.h3c" revision="${project.version}" module="AntDemo">
+	<!-- ant到该pattern生成的路径下查找是否存在ivy.xml文件中publication元素中指定的上传文件项目，然后根据resolver中的pattern上传文件-->
+	<artifacts pattern="${build.libs}/[module]-[revision]-[type].[ext]" />
+</ivy:publish>
+</target>
+</project>

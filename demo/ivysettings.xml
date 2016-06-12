@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivysettings>
+    <!--指定本地仓库和共享仓库的位置,${ivy.default.ivy.user.dir}表示默认的user home目录下的.ivy文件-->
+	<property name="ivy.local.default.root" value="${ivy.default.ivy.user.dir}/local"/>
+	 <!--Nexus私服的ip地址-->
+	 <property  name="nexusIP" value="172.27.12.66:8081"/>
+	<!--Nexus仓库的URL-->
+	<property name="nexus-public"
+                   value="http://172.27.12.66:8081/nexus/content/groups/public"/>
+  <property name="nexus-releases" value="http://172.27.12.66:8081/nexus/content/repositories/releases"/>
+  <property name="nexus-snapshots" value="http://172.27.12.66:8081/nexus/content/repositories/snapshots"/>
+	<!--指定默认的依赖解析器， defaultConflictManager表示默认的jar包冲突解决策略-->
+	<settings defaultResolver="chain" defaultConflictManager="latest-revision" />
+    <!--指定nexus私服的用户名密码-->
+    <credentials host="172.27.12.66"
+                      realm="Sonatype Nexus Repository Manager"
+                      username="admin" passwd="admin123"/>
+   <!--指定默认的缓存目录-->
+	<caches defaultCacheDir="${ivy.default.ivy.user.dir}/cache"/> 
+	<resolvers>
+	<!--指定解析解析的组织类型为链式，即依次从上往下查找各个仓库直到找到所需的依赖为止-->
+		<chain name="chain">	
+		     <!--从本地仓库从查找依赖-->	
+			<filesystem name="local" checkmodified="true">
+				<ivy pattern="${ivy.local.default.root}/[organisation]/[module]/ivy-[revision].xml" />
+				<artifact pattern="${ivy.local.default.root}/[organisation]/[module]/[artifact]-[revision].[ext]" />				
+			</filesystem>
+			<!--从中央仓库查找，使用root可以指定其他的maven2仓库地址-->
+			<ibiblio name="maven2" m2compatible="true" />
+			 <!--从开源中国镜像仓库从查找依赖-->	
+			<ibiblio name="OSchina" m2compatible="true" root="http://maven.oschina.net/content/groups/public/"/>
+		</chain>
+		<ibiblio name="nexus" m2compatible="true" root="${nexus-public}" />
+         <ibiblio name="nexus-releases" m2compatible="true" root="${nexus-releases}" pattern="/[organisation]/[module]/[artifact]-[revision]-[type].[ext]"/>
+         <ibiblio name="nexus-snapshots" m2compatible="true" root="${nexus-snapshots}" checkmodified="true" 
+          changingPattern="*-SNAPSHOT" pattern="/[organisation]/[module]/[artifact]-[revision]-[type].[ext]"/>
+	</resolvers>
+</ivysettings>
+

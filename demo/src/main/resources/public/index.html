@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WebsSockets</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="chatControls">
+    <h4>please input your words:</h4>
+        <input id="message" placeholder="Type your message">
+        <button id="send">Send</button>
+    </div>
+    <div class="chatControls">
+    <h4>please choose your image:</h4>
+    <input id="imageFile" type="file" onchange="previewImage(this)" style="width: 75%;margin-top: 0px;"/>
+    <button id="imageSend" style="margin-top: 5px;">SendImage</button>
+    <div id="preview"  style="width: 430px;height: 300px;border: solid;border-color: black;border-width: 2px;display:none;">
+    </div>
+    </div>
+    <ul id="userlist"> <!-- Built by JS --> </ul>
+    <div id="chat">    <!-- Built by JS --> </div>
+    <script src="websocketDemo.js"></script>
+</body>
+</html>
