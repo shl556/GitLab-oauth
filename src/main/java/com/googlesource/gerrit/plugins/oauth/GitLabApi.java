@@ -43,9 +43,9 @@ public class GitLabApi extends DefaultApi20 {
 
 
     private static final String AUTHORIZE_URL =
-            "http://172.27.12.64:8081/oauth/authorize?client_id=%s&response_type=code&redirect_uri=%s";
+            "http://172.27.12.85/oauth/authorize?client_id=%s&response_type=code&redirect_uri=%s";
     private static final String ACCESS_TOKEN_ENDPOINT =
-            "http://172.27.12.64:8081/oauth/token";
+            "http://172.27.12.85/oauth/token";
 
     public GitLabApi() {
     }
