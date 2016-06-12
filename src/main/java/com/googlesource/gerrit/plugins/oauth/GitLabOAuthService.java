@@ -48,7 +48,7 @@ public class GitLabOAuthService implements OAuthServiceProvider {
     private static final Logger log = getLogger(GitLabOAuthService.class);
     static final String CONFIG_SUFFIX = "-gitlab-oauth";
     private static final String PROTECTED_RESOURCE_URL =
-            "http://de.isrv.us/api/v3/user/";
+            "http://172.27.12.64:8081/api/v3/user/";
     private final OAuthService service;
 
     @Inject
