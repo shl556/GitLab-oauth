@@ -108,9 +108,11 @@ public class GitLabOAuthService implements OAuthServiceProvider {
 
     @Override
     public OAuthToken getAccessToken(OAuthVerifier rv) {
-        Verifier vi = new Verifier(rv.getValue());
-        Token to = service.getAccessToken(null, vi);
-        return new OAuthToken(to.getToken(), to.getSecret(), to.getRawResponse());
+      Verifier vi = new Verifier(rv.getValue());
+      Token to = service.getAccessToken(null, vi);
+      OAuthToken result = new OAuthToken(to.getToken(),
+          to.getSecret(), to.getRawResponse());
+      return result;
     }
 
     @Override
