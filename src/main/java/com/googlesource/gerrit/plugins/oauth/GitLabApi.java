@@ -14,44 +14,22 @@
 
 package com.googlesource.gerrit.plugins.oauth;
 
-import com.google.common.io.BaseEncoding;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.scribe.builder.api.DefaultApi20;
-import org.scribe.exceptions.OAuthException;
-import org.scribe.extractors.AccessTokenExtractor;
 import org.scribe.model.OAuthConfig;
-import org.scribe.model.OAuthRequest;
-import org.scribe.model.Response;
-import org.scribe.model.Token;
-import org.scribe.model.Verb;
-import org.scribe.model.Verifier;
-import org.scribe.oauth.OAuthService;
+import org.scribe.utils.OAuthEncoder;
 
-import static com.google.gerrit.server.OutputFormat.JSON;
-import static java.lang.String.format;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.scribe.model.OAuthConstants.ACCESS_TOKEN;
-import static org.scribe.model.OAuthConstants.CODE;
+public class GitHub2Api extends DefaultApi20 {
+  private static final String AUTHORIZE_URL =
+		  "http://172.27.12.85/oauth/authorize?client_id=%s&response_type=code&redirect_uri=%s";
 
-public class GitLabApi extends DefaultApi20 {
+  @Override
+  public String getAccessTokenEndpoint() {
+    return  "http://172.27.12.85/oauth/token";
+  }
 
-    private static final String AUTHORIZE_URL =
-            "http://172.27.12.85/oauth/authorize?client_id=%s&response_type=code&redirect_uri=%s";
-    private static final String ACCESS_TOKEN_ENDPOINT =
-            "http://172.27.12.85/oauth/token";
-
-    public GitLabApi() {
-    }
-
-    @Override
-    public String getAuthorizationUrl(OAuthConfig config) {
-        return format(AUTHORIZE_URL, config.getApiKey(), config.getCallback());
-    }
-
-    @Override
-    public String getAccessTokenEndpoint() {
-        return ACCESS_TOKEN_ENDPOINT;
-    }
-
+  @Override
+  public String getAuthorizationUrl(OAuthConfig config) {
+    return String.format(AUTHORIZE_URL, config.getApiKey(),
+        OAuthEncoder.encode(config.getCallback()));
+  }
 }
