@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+    
+    <!--RestTemplate内部默认使用的是SimpleClientHttpRequestFactory，通过jdk的java.net包发起HTTP连接
+    另一种方式是使用HttpComponentsClientHttpRequestFactory通过Apache HTTPclient工具包发起HTTP请求。
+    -->
+    <bean id="simpleRequestFactory" class="org.springframework.http.client.SimpleClientHttpRequestFactory">
+        <property name="readTimeout" value="10000"/>
+        <property name="connectTimeout" value="5000"/>
+    </bean>
+
+    <bean id="simpleRestTemplate" class="org.springframework.web.client.RestTemplate">
+        <constructor-arg ref="simpleRequestFactory"/>
+        <!-- 内部通过HttpMessageConverter来实现不同MIME的HTTP消息跟POJO之间的转换 -->
+        <property name="messageConverters">
+            <list>
+                <!-- 将MultiValueMap<String, String>形式的参数以form表单的形式写入requst中，也可以读取写入待上传的文件  -->
+                <bean class="org.springframework.http.converter.FormHttpMessageConverter"/>
+                <bean class="org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter"/>
+                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
+                <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                    <property name="supportedMediaTypes">
+                        <list>
+                            <value>text/plain;charset=UTF-8</value>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+    <bean id="RestClien" class="com.shl.sparkRest.UserRestClient"></bean>
+</beans>
