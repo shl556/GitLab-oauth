@@ -1,16 +1,28 @@
 package com.shl.redis.spring;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.MapPropertySource;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
@@ -30,10 +42,23 @@ import redis.clients.jedis.ShardedJedisPool;
 @ComponentScan("com.shl.redis.spring")
 //引入其他配置方式中定义的bean，允许通过Autowired或者Injec注解注入其他已定义的bean
 //@Import(Configure.class)
-@ImportResource("classpath:applicationContext.xml")
+//@ImportResource("classpath:applicationContext.xml")
+//相当于<task:annotation-driven/>
+//@EnableScheduling
+//开启注解缓存支持，相当于<cache:annotation-driven />
+@EnableCaching
 public class Configure {
 	@Autowired
 	private Environment env;
+	//从配置文件中读取数据
+	@Value("${spring.redis.cluster.nodes}")
+    private String clusterNodes;
+    @Value("${spring.redis.cluster.timeout}")
+    private Long timeout;
+   @Value("${spring.redis.cluster.max-redirects}")
+    private int redirects;
+   
+   
 	@Bean
 	public JedisPoolConfig jedisPoolConfig(){
 		JedisPoolConfig config=new JedisPoolConfig();
@@ -51,6 +76,8 @@ public class Configure {
 	  JedisConnectionFactory factory=new JedisConnectionFactory(jedisPoolConfig());
 	  //配置哨兵
 	  //JedisConnectionFactory factory= new JedisConnectionFactory(redisSentinelConfiguration());
+	  //配置集群，ClusterOperations clusterOps = redisTemplate.opsForCluster()操作数据库
+//	  JedisConnectionFactory factory2=new JedisConnectionFactory(getClusterConfiguration(),jedisPoolConfig());
 	  factory.setPort(env.getProperty("redis.port", Integer.class));
 	  factory.setHostName(env.getProperty("redis.ip", String.class));
 	  factory.setTimeout(env.getProperty("redis.pool.timeout", Integer.class));
@@ -109,4 +136,38 @@ public class Configure {
 	ChannelTopic topic() {
 	    return new ChannelTopic("messageQueue");
 	}
+	
+	@Bean
+	//Redis的缓存管理器
+	 CacheManager cacheManager() {
+	     return new RedisCacheManager(redisTemplate());
+	 }
+	
+    @Bean  //自定义缓存key生成器
+    public KeyGenerator customKeyGenerator() {  
+        return new KeyGenerator() {  
+            @Override  
+            public Object generate(Object o, Method method, Object... objects) {  
+                StringBuilder sb = new StringBuilder();  
+                sb.append(o.getClass().getName());  
+                sb.append(method.getName());  
+                for (Object obj : objects) {  
+                    sb.append(obj.toString());  
+                }  
+                return sb.toString();  
+            }  
+        };  
+    } 
+    
+    @Bean
+    public RedisClusterConfiguration getClusterConfiguration() {
+         Map<String, Object> source = new HashMap<String, Object>();
+         //key值是固定的
+         source.put("redis.cluster.nodes", clusterNodes);
+         source.put("spring.redis.cluster.timeout", timeout);
+         source.put("spring.redis.cluster.max-redirects", redirects);
+         //MapPropertySource是对properties属性文件的一个抽象表示，但是他不能直接读取配置文件，只能通过map的方式手动构造
+        return new RedisClusterConfiguration(new MapPropertySource("RedisClusterConfiguration", source));
+
+       }
 }

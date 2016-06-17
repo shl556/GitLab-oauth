@@ -14,7 +14,7 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd
 		http://www.springframework.org/schema/task  http://www.springframework.org/schema/task/spring-task-4.2.xsd" >
 	<!-- task任务扫描 -->
-	<task:annotation-driven/> 
+	<!-- <task:annotation-driven/>  -->
 	<!-- 
 	<context:property-placeholder location="classpath:jedisPoolConfig.properties" />
 	<context:component-scan base-package="com.shl.redis.spring">

@@ -8,6 +8,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.YamlProcessor.ResolutionMethod;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -40,4 +41,9 @@ public class UserDaoImplTest {
 		assertEquals(4, ((Set<String>)results.get(4)).size());
 	}
 
+	@Test
+	public void pipelineTest(){
+		List<Object> results=userDao.PipelineTest();
+		assertEquals(100, results.size());
+	}
 }
