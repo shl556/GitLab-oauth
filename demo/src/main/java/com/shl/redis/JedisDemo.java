@@ -19,6 +19,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisMonitor;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.JedisSentinelPool;
 import redis.clients.jedis.JedisShardInfo;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.ShardedJedis;
@@ -26,7 +27,6 @@ import redis.clients.jedis.ShardedJedisPipeline;
 import redis.clients.jedis.ShardedJedisPool;
 import redis.clients.jedis.SortingParams;
 import redis.clients.jedis.Transaction;
-import redis.clients.util.JedisClusterCRC16;
   
   
   
@@ -805,6 +805,44 @@ public class JedisDemo  {
 		}  
     }
     
+    @Test
+    public void testJedis() throws InterruptedException {
+
+        Set<String> sentinels = new HashSet<String>();
+        sentinels.add("10.6.144.155:7031");
+        sentinels.add("10.6.144.156:7031");        
+
+        JedisSentinelPool sentinelPool = new JedisSentinelPool("mymaster",
+                sentinels);
+
+        Jedis jedis = sentinelPool.getResource();
+
+        System.out.println("current Host:"
+                + sentinelPool.getCurrentHostMaster());
+
+        String key = "a";
+
+        String cacheData = jedis.get(key);
+
+        if (cacheData == null) {
+            jedis.del(key);
+        }
+
+        jedis.set(key, "aaa");// 写入
+
+        System.out.println(jedis.get(key));// 读取
+
+        System.out.println("current Host:"
+                + sentinelPool.getCurrentHostMaster());// down掉master，观察slave是否被提升为master
+
+        jedis.set(key, "bbb");// 测试新master的写入
+
+        System.out.println(jedis.get(key));// 观察读取是否正常
+
+        sentinelPool.close();
+        jedis.close();
+
+    }
 }  
 
     
