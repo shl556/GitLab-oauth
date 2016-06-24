@@ -3,6 +3,7 @@ package com.h3c.DFSDao;
 import static org.junit.Assert.*;
 
 import org.csource.common.NameValuePair;
+import org.csource.fastdfs.DownloadCallback;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +11,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.h3c.DFSDemo.Config;
+import com.h3c.Util.DownloadFileWriter;
 import com.h3c.Util.NameValuePairUtil;
 import com.h3c.Util.StorageInfo;
+import com.h3c.Util.UploadLocalFileSender;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = Config.class)
@@ -61,12 +64,13 @@ public class DFSDaoImplTest {
 		assertNotNull(info);
 
 		String downloadFilePath = "download/appendFileId.txt";
-		boolean success = dao.downloadByCallBack(info, downloadFilePath);
+		DownloadCallback callback=new DownloadFileWriter(downloadFilePath);
+		boolean success = dao.downloadByCallBack(info, downloadFilePath,callback);
 		assertTrue(success);
 
 		info.setGroupName("shl");
 		String downloadFilePath2 = "download/appendFileId2.txt";
-		boolean success2 = dao.downloadByCallBack(info, downloadFilePath);
+		boolean success2 = dao.downloadByCallBack(info, downloadFilePath,callback);
 		assertFalse(success2);
 	}
 
@@ -81,18 +85,20 @@ public class DFSDaoImplTest {
 
 		String filePath = "appendFileId.txt";
 		String groupName = "group1";
-
-		StorageInfo info = dao.uploadFileByCallBack(fileInfo, filePath, groupName);
+        UploadLocalFileSender callback2=new UploadLocalFileSender(filePath);
+		
+		StorageInfo info = dao.uploadFileByCallBack(fileInfo, filePath, groupName,callback2);
 		System.out.println(info);
 		assertNotNull(info);
 
 		String downloadFilePath = "download/appendFileId.txt";
-		boolean success = dao.downloadByCallBack(info, downloadFilePath);
+		DownloadCallback callback=new DownloadFileWriter(downloadFilePath);
+		boolean success = dao.downloadByCallBack(info, downloadFilePath,callback);
 		assertTrue(success);
 
 		dao.delete(info);
 		String downloadFilePath2 = "download/appendFileId2.txt";
-		boolean success2 = dao.downloadByCallBack(info, downloadFilePath);
+		boolean success2 = dao.downloadByCallBack(info, downloadFilePath,callback);
 		assertFalse(success2);
 	}
 
@@ -108,7 +114,9 @@ public class DFSDaoImplTest {
 		String filePath = "appendFileId.txt";
 		String groupName = "group1";
 
-		StorageInfo info = dao.uploadFileByCallBack(fileInfo, filePath, groupName);
+UploadLocalFileSender callback2=new UploadLocalFileSender(filePath);
+		
+		StorageInfo info = dao.uploadFileByCallBack(fileInfo, filePath, groupName,callback2);
 		System.out.println(info);
 		assertNotNull(info);
 
@@ -119,7 +127,8 @@ public class DFSDaoImplTest {
 		assertNotNull(info2);
 		
 		String downloadFilePath = "download/appendFileId2.txt";
-		boolean success = dao.downloadByCallBack(info2, downloadFilePath);
+		DownloadCallback callback=new DownloadFileWriter(downloadFilePath);
+		boolean success = dao.downloadByCallBack(info2, downloadFilePath,callback);
 		assertTrue(success);
 
 	}
@@ -193,8 +202,9 @@ public class DFSDaoImplTest {
 
 		String filePath = "appendFileId.txt";
         String groupName="group1";
+        UploadLocalFileSender callback2=new UploadLocalFileSender(filePath);
 		
-		StorageInfo info = dao.uploadAppenderFileByCallBack(fileInfo, filePath, groupName);
+		StorageInfo info = dao.uploadFileByCallBack(fileInfo, filePath, groupName,callback2);
 		System.out.println(info);
 		assertNotNull(info);
 

@@ -118,13 +118,13 @@ public class DFSDaoImpl implements DFSDao {
 	 *            上传至指定的分组
 	 * @return
 	 */
-	public StorageInfo uploadFileByCallBack(NameValuePair[] fileInfo, String filePath, String groupName) {
+	public StorageInfo uploadFileByCallBack(NameValuePair[] fileInfo, String filePath, String groupName,UploadLocalFileSender callback) {
 		fileInfo = addMd5(fileInfo, filePath);
 		filePath = FastDFSUtill.getFilePath(filePath);
 		try {
-			UploadLocalFileSender callBack = new UploadLocalFileSender(filePath);
+//			UploadLocalFileSender callBack = new UploadLocalFileSender(filePath);
 			StorageClient1 client=FastDFSUtill.getStorageClient1();
-			String[] result = client.upload_file(groupName, callBack.getFileSize(), callBack, getExtName(filePath),
+			String[] result = client.upload_file(groupName, callback.getFileSize(), callback, getExtName(filePath),
 					fileInfo);
 
 			if (result != null) {
@@ -255,13 +255,13 @@ public class DFSDaoImpl implements DFSDao {
 	 *            指定分组
 	 * @return
 	 */
-	public StorageInfo uploadAppenderFileByCallBack(NameValuePair[] fileInfo, String filePath, String groupName) {
+	public StorageInfo uploadAppenderFileByCallBack(NameValuePair[] fileInfo, String filePath, String groupName,UploadLocalFileSender callback) {
 		fileInfo = addMd5(fileInfo, filePath);
 		filePath = FastDFSUtill.getFilePath(filePath);
 		try {
-			UploadLocalFileSender callBack = new UploadLocalFileSender(filePath);
+//			UploadLocalFileSender callBack = new UploadLocalFileSender(filePath);
 			StorageClient1 client=FastDFSUtill.getStorageClient1();
-			String[] result = client.upload_appender_file(groupName, callBack.getFileSize(), callBack,
+			String[] result = client.upload_appender_file(groupName, callback.getFileSize(), callback,
 					getExtName(filePath), fileInfo);
 			if (result != null) {
 				StorageInfo info = new StorageInfo(result);
@@ -574,10 +574,10 @@ public class DFSDaoImpl implements DFSDao {
 	 * @param localFilePath
 	 * @return
 	 */
-	public boolean downloadByCallBack(StorageInfo storageInfo, String localFilePath) {
+	public boolean downloadByCallBack(StorageInfo storageInfo, String localFilePath,DownloadCallback callback) {
 		// localFilePath=FastDFSUtill.getFilePath(localFilePath);
 		try {
-			DownloadCallback callback = new DownloadFileWriter(localFilePath);
+//			DownloadCallback callback = new DownloadFileWriter(localFilePath);
 			StorageClient1 client=FastDFSUtill.getStorageClient1();
 			int success = client.download_file(storageInfo.getGroupName(), storageInfo.getFileName(), callback);
 			if (success == 0) {

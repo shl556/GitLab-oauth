@@ -1,8 +1,10 @@
 package com.h3c.DFSDao;
 
 import org.csource.common.NameValuePair;
+import org.csource.fastdfs.DownloadCallback;
 
 import com.h3c.Util.StorageInfo;
+import com.h3c.Util.UploadLocalFileSender;
 
 public interface DFSDao {
 	/**
@@ -39,7 +41,7 @@ public interface DFSDao {
 	 *            上传至指定的分组
 	 * @return
 	 */
-	StorageInfo uploadFileByCallBack(NameValuePair[] fileInfo, String filePath, String groupName);
+	StorageInfo uploadFileByCallBack(NameValuePair[] fileInfo, String filePath, String groupName,UploadLocalFileSender callback);
 	
 	
 	/**
@@ -98,7 +100,7 @@ public interface DFSDao {
 	 *            指定分组
 	 * @return
 	 */
-	StorageInfo uploadAppenderFileByCallBack(NameValuePair[] fileInfo, String filePath, String groupName);
+	StorageInfo uploadAppenderFileByCallBack(NameValuePair[] fileInfo, String filePath, String groupName,UploadLocalFileSender callback);
 	
 	/**
 	 * 执行文件上传，小文件采用uploadFile，大文件先判断该文件是否存在断点，若存在则从断点处开始上传，否则 从头开始上传
@@ -140,7 +142,7 @@ public interface DFSDao {
 	 * @param localFilePath
 	 * @return
 	 */
-	boolean downloadByCallBack(StorageInfo storageInfo, String localFilePath);
+	boolean downloadByCallBack(StorageInfo storageInfo, String localFilePath,DownloadCallback callback);
 	
 	/** 分片下载
 	 * @param storageInfo
