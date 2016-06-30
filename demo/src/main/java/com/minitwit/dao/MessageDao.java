@@ -11,13 +11,13 @@ public interface MessageDao {
 	 * @param user
 	 * @return
 	 */
-	List<Message> getUserTimelineMessages(User user);
+	List<Message> getUserTimelineMessages(int id);
 	
 	/** 根据用户id查找该用户发布的回复的消息
 	 * @param user
 	 * @return
 	 */
-	List<Message> getUserFullTimelineMessages(User user);
+	List<Message> getUserFullTimelineMessages(int id);
 	
 	/** 查询所有的消息
 	 * @return

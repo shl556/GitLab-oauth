@@ -32,22 +32,22 @@ public class MessageDaoImpl implements MessageDao {
 
 	
 	@Override
-	public List<Message> getUserTimelineMessages(User user) {
+	public List<Message> getUserTimelineMessages(int id) {
 		Map<String, Object> params = new HashMap<String, Object>();
-        params.put("id", user.getId());
+        params.put("id", id);
         
 		String sql = "select message.*, user.* from message, user where " +
 				"user.user_id = message.author_id and user.user_id = :id " +
 				"order by message.pub_date desc";
 		List<Message> result = template.query(sql, params, messageMapper);
-		log.info("根据用户id查找该该用户所发布的信息成功，用户id{}，共查找相关信息{}条",user.getId(),result.size());
+		log.info("根据用户id查找该该用户所发布的信息成功，用户id{}，共查找相关信息{}条",id,result.size());
 		return result;
 	}
 
 	@Override
-	public List<Message> getUserFullTimelineMessages(User user) {
+	public List<Message> getUserFullTimelineMessages(int id) {
 		Map<String, Object> params = new HashMap<String, Object>();
-        params.put("id", user.getId());
+        params.put("id", id);
         
 		String sql = "select message.*, user.* from message, user " +
 				"where message.author_id = user.user_id and ( " +
@@ -56,7 +56,7 @@ public class MessageDaoImpl implements MessageDao {
                                     "where follower_id = :id))" +
                 "order by message.pub_date desc";
 		List<Message> result = template.query(sql, params, messageMapper);
-		log.info("根据用户id查找该用户及其所关注用户所发布的信息成功，用户id:{}，共查找相关信息{}条",user.getId(),result.size());
+		log.info("根据用户id查找该用户及其所关注用户所发布的信息成功，用户id:{}，共查找相关信息{}条",id,result.size());
 		return result;
 	}
 

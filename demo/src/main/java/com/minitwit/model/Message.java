@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Message {
-	private int id;
+	private Integer id;
 	
 	private int userId;
 	
@@ -17,12 +17,45 @@ public class Message {
 	private String pubDateStr;
 	
 	private String gravatar;
+	
+	private User user;
+	
+	private Error error;
+	
+	public Message(){
+		
+	}
+	
+	public Message(int userId, String text) {
+		super();
+		this.userId = userId;
+		this.text = text;
+	}
 
-	public int getId() {
+	public Message(Error error){
+		this.error=error;
+	}
+	public Error getError() {
+		return error;
+	}
+	
+	public void setError(Error error) {
+		this.error = error;
+	}
+	
+	public User getUser() {
+		return user;
+	}
+	
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -77,5 +110,11 @@ public class Message {
 	public String toString() {
 	      return "用户id："+userId+"  用户名："+username+"  消息内容："+text+"messageId: "+id+"  pubDate:"+pubDateStr;
 	      
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		Message message=(Message)obj;
+		return this.toString().equals(message.toString());
 	}
 }

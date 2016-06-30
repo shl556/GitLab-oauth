@@ -117,4 +117,10 @@ public class Condition {
 		   System.out.println(DateFormatUtils.format(condition.getSelectDate("3"),"yyyy-MM-dd"));
 		   System.out.println(DateFormatUtils.format(condition.getSelectDate("4"),"yyyy-MM-dd"));
 	}
+    
+    @Override
+    public boolean equals(Object obj) {
+    	Condition condition=(Condition)obj;
+    	return condition.getKeyWord().equals(this.keyWord)&& condition.getPubDate().equals(this.pubDate)&&condition.getUserId()==this.userId;
+    }
 }

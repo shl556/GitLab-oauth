@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/mvc/spring-util-4.3.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.3.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd">
+
+   <context:component-scan base-package="com.minitwit">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>/db.properties</value>
+		</property>
+		<property name="fileEncoding" value="ISO-8859-1" />
+	</bean>
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	     <constructor-arg ref="dataSource"></constructor-arg>
+	</bean>
+
+	<beans profile="test">
+		<jdbc:embedded-database id="dataSource" type="HSQL">
+			<jdbc:script location="classpath:sql/create-db.sql"
+				encoding="utf-8" />
+			<jdbc:script location="classpath:sql/insert-data.sql"
+				encoding="utf-8" />
+		</jdbc:embedded-database>
+	</beans>
+
+	<beans profile="dev">
+		<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+			<property name="driverClass" value="${driverClass}" />
+			<property name="jdbcUrl" value="${url}" />
+			<property name="user" value="${username}" />
+			<property name="password" value="${password}" />
+		</bean>
+	</beans>
+	
+	
+</beans>
