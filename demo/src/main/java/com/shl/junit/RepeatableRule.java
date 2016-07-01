@@ -18,6 +18,10 @@ class RepeatableRule implements MethodRule{
         this.testMethods = testMethods;  
     }  
       
+    /* Statement表示当前执行的测试
+     * FrameworkMethod表示对当前测试方法的描述
+     * @see org.junit.rules.MethodRule#apply(org.junit.runners.model.Statement, org.junit.runners.model.FrameworkMethod, java.lang.Object)
+     */
     @Override  
     public Statement apply(final Statement base, final FrameworkMethod method, Object target) {  
       return new Statement() {  
@@ -25,6 +29,8 @@ class RepeatableRule implements MethodRule{
          public void evaluate() throws Throwable { 
         	System.out.println("应用Rule");
             int loopTime = 1;  
+//            int sum=method.getDeclaringClass().getDeclaredMethods().length;
+//            System.out.println(sum);
             if(Arrays.asList(testMethods).contains(method.getName())){//test method name matched  
                 loopTime = times;  
             } 

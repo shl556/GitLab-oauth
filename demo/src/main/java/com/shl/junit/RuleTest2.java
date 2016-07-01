@@ -1,17 +1,19 @@
 package com.shl.junit;
 
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+
 import org.junit.After;
-import org.junit.Assert;
-import org.junit.AssumptionViolatedException;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.junit.runners.model.Statement;
+import org.springframework.test.context.junit4.SpringRunner;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RuleTest2 {
@@ -49,14 +51,35 @@ public class RuleTest2 {
 //	      super.finished(description);
 //	    }
 //	  };
+	 @BeforeClass
+	 public static void BeforeClass(){
+		 System.out.println("beforeClass方法2");
+	 }
+	 @AfterClass
+	 public static void AfterClass(){
+		 System.out.println("afterClass 方法2");
+	 }
+	 
+	 
+	 @Before
+	 public void init (){
+		 System.out.println("before方法2");
+	 }
+	 
+	 @After
+	 public void After(){
+		 System.out.println("after方法2");
+	 }
 
 	 @Rule
-	 public RepeatableRule rule=new RepeatableRule(5, new String[]{"fails","succeeds"});
+	 public RepeatableRule2 rule=new RepeatableRule2();
+//	 @ClassRule
+//	 public static RepeatableRule2 rule=new RepeatableRule2();
+//	 public RepeatableRule rule=new RepeatableRule(5, new String[]{"succeeds"});
 	 
 	  @Test
 	  public void fails() {
 	      System.out.println("失败测试");
-	      Assert.fail();
 	  }
 
 	  @Test
@@ -74,4 +97,6 @@ public class RuleTest2 {
 //	  public void printLog(){
 //		  System.out.println(watchedLog);
 //	  }
+	  
+	  
 }

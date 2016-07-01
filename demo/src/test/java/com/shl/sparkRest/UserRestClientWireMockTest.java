@@ -62,7 +62,7 @@ public class UserRestClientWireMockTest {
 		stubFor(
 				get(urlEqualTo("/users")) //返回MappingBuild，MappingBuild是对RequestPatternBuilder和ResponseDefinitionBuilder的封装，可以设置请求体，请求头和查询字符串
 //				get(urlEqualTo("/users")).atPriority(1) //设置匹配优先级，默认使用最近添加的stub匹配，数值越小优先级越高
-//				.withQueryParam("search", containing("Some text"))
+				.withQueryParam("search", containing("Some text"))
 //				.withRequestBody(matching("<status>OK</status>"))//支持对json、xml、Xpath、contain匹配
 //				.withHeader("Content-Type", equalTo("text/xml"))
 				.willReturn(
