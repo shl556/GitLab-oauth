@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+	xmlns:repository="http://www.springframework.org/schema/data/repository"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo-1.8.xsd
+		http://www.springframework.org/schema/data/repository http://www.springframework.org/schema/data/repository/spring-repository-1.11.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+   
+   <!-- 配置mongoclient实例 -->
+   <!-- <mongo:mongo id="replicaSetMongo" replica-set="127.0.0.1:27017,localhost:27018"/> -->
+   <mongo:mongo host="172.27.12.85" port="27017">
+         <mongo:options connections-per-host="8"
+                   threads-allowed-to-block-for-connection-multiplier="4"
+                   connect-timeout="1000"
+                   max-wait-time="1500}"
+                   auto-connect-retry="true"
+                   socket-keep-alive="true"
+                   socket-timeout="1500"
+                   slave-ok="true"
+                   write-number="1"
+                   write-timeout="0"
+                   write-fsync="true"/>
+   </mongo:mongo>
+   
+   <!-- 这种方式下由mongoDbFactory自动穿件Mongo实例，如果需要自定义Mongo实例的更多配置选项，可以使用mongo-ref选项 -->
+   <!-- <mongo:db-factory id="anotherMongoDbFactory"
+                  host="localhost"
+                  port="27017"
+                  dbname="database"
+                  username="joe"
+                  password="secret"/> -->
+   
+   <mongo:db-factory dbname="database" mongo-ref="mongo" id="mongoDbFactory"/>
+ 
+<bean id="anotherMongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+  <constructor-arg name="mongoDbFactory" ref="mongoDbFactory"/>
+</bean>
+
+</beans>
